@@ -6,7 +6,7 @@ import os.path
 import tornado.ioloop
 import tornado.web
 
-ENTRY_DIRECTORY = "/home/emil/Brain/"
+ENTRY_DIRECTORY = os.path.expanduser("~/Brain/")
 # https://github.com/ttscoff/MarkedCustomStyles/blob/master/Bear.css
 STYLE_PATH = os.path.join(ENTRY_DIRECTORY, "Bear.css")
 
