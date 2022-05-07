@@ -10,8 +10,11 @@ ENTRY_DIRECTORY = os.path.expanduser("~/Brain/")
 # https://github.com/ttscoff/MarkedCustomStyles/blob/master/Bear.css
 STYLE_PATH = os.path.join(ENTRY_DIRECTORY, "Bear.css")
 
+# TODO: Async DB-connection
+# https://pypi.org/project/aiosqlite/
 
-async def convert_org_to_html(path: str):
+
+async def convert_org_to_html(path: str):  # {{{
     """Async convert org to html and return string.
     
     https://docs.python.org/3/library/asyncio-subprocess.html
@@ -37,25 +40,35 @@ async def convert_org_to_html(path: str):
         print(stderr)
 
     return stdout
+#}}}
 
 
-class OrgHandler(tornado.web.RequestHandler):
+class OrgHandler(tornado.web.RequestHandler):  # {{{
     async def get(self, entry: str) -> None:
 
         entry_path = os.path.join(ENTRY_DIRECTORY, entry)
         stdout = await convert_org_to_html(entry_path)
 
         self.write(stdout)
-
+# }}}
+class OrgListHandler(tornado.web.RequestHandler):  # {{{
+    async def get(self) -> None:
+        entries = ["foo", "bar"]
+        self.render("org-list.html.j2", entries=entries)
+#}}}
 
 def make_app() -> tornado.web.Application:
     url = tornado.web.url
 
-    return tornado.web.Application([
-        url(r"/style.css()", tornado.web.StaticFileHandler,
-            {"path": STYLE_PATH}),
-        url(r"/entries/(?P<entry>.*)", handler=OrgHandler, name="entries"),
-    ])
+    return tornado.web.Application(
+        [
+            url(r"/style.css()", tornado.web.StaticFileHandler,
+                {"path": STYLE_PATH}),
+            url(r"/entries/", handler=OrgListHandler, name="entries-list"),
+            url(r"/entries/(?P<entry>.+)", handler=OrgHandler, name="entries-show"),
+        ],
+        template_path="templates",
+    )
 
 
 def main() -> None:
