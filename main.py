@@ -2,7 +2,9 @@
 
 import asyncio
 import os.path
+from typing import Optional
 
+import aiosqlite
 import tornado.ioloop
 import tornado.web
 
@@ -12,6 +14,8 @@ STYLE_PATH = os.path.join(ENTRY_DIRECTORY, "Bear.css")
 
 # TODO: Async DB-connection
 # https://pypi.org/project/aiosqlite/
+
+# TODO: argparse
 
 
 async def convert_org_to_html(path: str):  # {{{
@@ -24,6 +28,7 @@ async def convert_org_to_html(path: str):  # {{{
         "--shift-heading-level-by=1",
         "--wrap=preserve",
         "--css=/style.css",
+        "--from=org",
         "--to=html",
         path,
     ]
@@ -43,6 +48,26 @@ async def convert_org_to_html(path: str):  # {{{
 #}}}
 
 
+_db_connection: Optional[aiosqlite.core.Connection] = None
+async def db_connection() -> aiosqlite.core.Connection:
+    global _db_connection
+
+    if _db_connection is not None:
+        return _db_connection
+
+    _db_connection = await aiosqlite.connect(ORG_DB_PATH)
+    _db_connection.row_factory = aiosqlite.Row
+
+    return _db_connection
+
+
+# Models {{{
+
+#}}}
+
+
+
+# Controllers {{{
 class OrgHandler(tornado.web.RequestHandler):  # {{{
     async def get(self, entry: str) -> None:
 
@@ -53,9 +78,15 @@ class OrgHandler(tornado.web.RequestHandler):  # {{{
 # }}}
 class OrgListHandler(tornado.web.RequestHandler):  # {{{
     async def get(self) -> None:
-        entries = ["foo", "bar"]
-        self.render("org-list.html.j2", entries=entries)
-#}}}
+        db = await db_connection()
+        sql_string = """SELECT
+            TRIM(title, '"') AS title,
+            REPLACE(TRIM(file, '"'),?,'') AS file
+        FROM titles;"""
+        async with db.execute(sql_string, (ENTRY_DIRECTORY,)) as cursor:
+            entries = await cursor.fetchall()
+            self.render("org-list.html.j2", entries=entries)
+#}}} #}}}
 
 def make_app() -> tornado.web.Application:
     url = tornado.web.url
