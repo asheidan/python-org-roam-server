@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
 <head>
   <meta charset="utf-8">
@@ -28,9 +29,36 @@
 
 		<input type="submit" value="search" />
 	</form>
-	<ul>{% for entry in entries %}
-		<li><a href={{ entry['file'] }}>{{ entry['title'] }}</a></li>
+	<ul id="entry-list">{% for entry in entries %}
+		<li data-title="{{ entry.title }}"><a href={{ entry.file }}>{{ entry.title }}</a></li>
 		{% end %}
 	</ul>
+	<script>
+		function filterChange(event) {
+			let filterString = event
+						.target
+						.value
+						.split(/\s+/)
+						.filter(Boolean)
+						.map((s)=> `(?=.*${s})`)
+						.join("");
+
+			let items = document.getElementById("entry-list").getElementsByTagName("li");
+
+			let filterRegexp = new RegExp("^" + filterString, "i");
+
+			for (let i = 0; i < items.length; ++i) {
+				let li = items[i];
+				let isMatch = filterRegexp.test(li.dataset.title);
+				li.style.display = (isMatch ? null : "none");
+			}
+
+		}
+
+		var filterElement = document.getElementById("entry-filter");
+
+		filterElement.addEventListener("input", filterChange);
+		filterElement.addEventListener("paste", filterChange);
+	</script>
 </body>
 </html>
