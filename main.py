@@ -79,6 +79,26 @@ class Backlink:
     outline: List[str]
     point: Optional[int]
 
+    @classmethod
+    def list_as_tree(cls, backlinks: Sequence):
+        from collections import OrderedDict
+        tree = OrderedDict()
+
+        for link in backlinks:
+            levels = [link.title, *link.outline]
+            node = tree
+            for level in levels[:-1]:
+                if level not in node:
+                    node[level] = OrderedDict()
+
+                node = node[level]
+
+            node[levels[-1]] = link
+
+        from pprint import pprint
+        pprint(tree)
+
+        return tree
 #}}}
 # class Entry {{{
 @dataclass

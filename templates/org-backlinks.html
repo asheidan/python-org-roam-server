@@ -3,7 +3,7 @@
 	<h2>Backlinks</h2>
 	<ul>{% for link in backlinks %}
 		<li><a href="{{ reverse_url('entry-show', link.source) }}">{{ link.title }}</a>
-			{{ " » ".join(link.outline or []) }}
+			{% raw " &raquo; ".join(link.outline or []) %}
 		</li>{% end %}
 	<ul>
 
