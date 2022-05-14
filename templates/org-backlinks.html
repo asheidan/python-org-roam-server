@@ -1,10 +1,5 @@
 <hr class="endmatter" />
 <div class="endmatter">
 	<h2>Backlinks</h2>
-	<ul>{% for link in backlinks %}
-		<li><a href="{{ reverse_url('entry-show', link.source) }}">{{ link.title }}</a>
-			{{ " » ".join(link.outline or []) }}
-		</li>{% end %}
-	<ul>
-
+	{% module Template('org-backlink-tree.html', tree=backlink_tree) %}
 </div>

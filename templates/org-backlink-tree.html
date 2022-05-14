@@ -1,0 +1,15 @@
+<ul>{% for title, subtree in sorted(tree.items()) %}
+	<li>{{ title }}
+		{% if isinstance(subtree, dict) %}
+			{% module Template('org-backlink-tree.html', tree=subtree) %}
+		{% elif isinstance(subtree, list) %}
+			<ul>
+			{% for link in reversed(subtree) %}
+				<li>{{ link.point }}</li>
+			{% end %}
+			</ul>
+		{% else %}
+			{{ subtree }}
+		{% end %}
+	</li>{% end %}
+</ul>

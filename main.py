@@ -79,6 +79,25 @@ class Backlink:
     outline: List[str]
     point: Optional[int]
 
+    @classmethod
+    def list_as_tree(cls, backlinks: Sequence):
+        tree = dict()
+
+        for link in backlinks:
+            levels = [link.title, *link.outline]
+            node = tree
+            for level in levels[:-1]:
+                if level not in node:
+                    node[level] = dict()
+
+                node = node[level]
+
+            if levels[-1] not in node:
+                node[levels[-1]] = []
+
+            node[levels[-1]].append(link)
+
+        return tree
 #}}}
 # class Entry {{{
 @dataclass
@@ -137,7 +156,8 @@ class OrgHandler(tornado.web.RequestHandler):  # {{{
         endmatter = None
         backlinks = await instance.backlinks()
         if backlinks:
-            endmatter = self.render_string("org-backlinks.html", backlinks=backlinks)
+            backlink_tree = Backlink.list_as_tree(backlinks)
+            endmatter = self.render_string("org-backlinks.html", backlink_tree=backlink_tree)
         stdout = await convert_org_to_html(instance.path, endmatter)
 
         self.write(stdout)
