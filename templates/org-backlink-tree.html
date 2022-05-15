@@ -1,15 +1,20 @@
+{% if isinstance(tree, dict) %}
 <ul>{% for title, subtree in sorted(tree.items()) %}
 	<li>{{ title }}
-		{% if isinstance(subtree, dict) %}
-			{% module Template('org-backlink-tree.html', tree=subtree) %}
-		{% elif isinstance(subtree, list) %}
-			<ul>
-			{% for link in reversed(subtree) %}
-				<li>{{ link.point }}</li>
+		{% while isinstance(subtree, dict) and len(subtree) == 1 %}
+			{# This is an ugly hack to get the first entry from a dict we know is just 1 element #}
+			{% for title, subtree in sorted(subtree.items()) %}
+				{% break %}
 			{% end %}
-			</ul>
-		{% else %}
-			{{ subtree }}
+		&raquo; {{ title }}
 		{% end %}
+		{% module Template('org-backlink-tree.html', tree=subtree) %}
 	</li>{% end %}
 </ul>
+{% elif isinstance(tree, list) %}
+<ul>{% for point in reversed(tree) %}
+	<li>{{ point }}</li>{% end %}
+</ul>
+{% else %}
+	{{ tree }}
+{% end %}
