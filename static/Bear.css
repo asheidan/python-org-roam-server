@@ -525,6 +525,10 @@ del:before, del:after {
 	color: #bbb;
 }
 
+nav a:before, nav a:after {
+	content: '' !important;
+}
+
 hr.endmatter {
 	border-color: rgb(222, 84, 86) !important;
 }

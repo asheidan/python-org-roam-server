@@ -1,5 +1,9 @@
 <hr class="endmatter" />
 <div class="endmatter">
-	<h2>Backlinks</h2>
-	{% module Template('org-backlink-tree.html', tree=backlink_tree) %}
+	<h2>{{ backlink_count }} Backlinks</h2>
+	<ul>{% for title, (source, subtree) in sorted(backlink_tree.items()) %}
+		<li><a href="{{ source }}">{{ title }}</a>
+		{% module Template('org-backlink-tree.html', tree=subtree) %}
+		</li>{% end %}
+	</ul>
 </div>
