@@ -1,32 +1,68 @@
+from typing import Dict
+from typing import List
+from typing import Union
+
 import tornado.web
 
 from models import Backlink
 from models import Entry
 from org_utils import convert_org_to_html
+from org_utils import point_in_org
+
+def replace_point_list(tree: Union[Dict, List], source = None) -> None:
+    if not source:
+        for _title, (source, subtree) in tree.items():
+            instance = Entry(title="", file=source)
+            replace_point_list(tree=subtree, source=instance.path)
+
+        return
+
+    if isinstance(tree, dict):
+        for _title, subtree in tree.items():
+            replace_point_list(tree=subtree, source=source)
+
+        return
+
+    elif isinstance(tree, list):
+        tree[:] = point_in_org(source, points=tree)
+
+        return
+
+    raise ValueError("Got unknown data: %s" % tree)
+
 
 class OrgHandler(tornado.web.RequestHandler):  # {{{
     async def get(self, entry: str) -> None:
         # FIXME: Prevent directory traversal
-        # TODO: Make backlinks into tree-structure
         # (Same file should only have one top level entry)
 
         instance = Entry(title="", file=entry)
 
-        endmatter = None
         backlinks = await instance.backlinks()
+        backlink_count = len(backlinks)
+        backlink_tree = None
         if backlinks:
-            backlink_count = len(backlinks)
             backlink_tree = Backlink.list_as_tree(backlinks)
-            endmatter = self.render_string("org-backlinks.html",
-                                           backlink_tree=backlink_tree,
-                                           backlink_count=backlink_count)
-        stdout = await convert_org_to_html(instance.path, endmatter)
+            replace_point_list(backlink_tree)
 
-        self.write(stdout)
+        meta, body = convert_org_to_html(file=instance.path)
+
+        self.render("org-show.html",
+                    title=meta["title"],
+                    body=body,
+                    backlink_count=backlink_count,
+                    backlink_tree=backlink_tree)
 # }}}
 class OrgListHandler(tornado.web.RequestHandler):  # {{{
     async def get(self) -> None:
         # TODO: Add tags to list
         entries = await Entry.list()
         self.render("org-list.html", entries=entries)
+#}}}
+class OrgPointHandler(tornado.web.RequestHandler):  #{{{
+    async def get(self, entry: str, point: int) -> None:
+        print(entry, point)
+
+        instance = Entry(title="", file=entry)
+        point_in_org(instance.path, points=[int(point)])
 #}}}

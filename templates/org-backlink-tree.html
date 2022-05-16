@@ -12,9 +12,8 @@
 	</li>{% end %}
 </ul>
 {% elif isinstance(tree, list) %}
-<ul>{% for point in reversed(tree) %}
-	<li>{{ point }}</li>{% end %}
-</ul>
+{% for point in reversed(tree) %}
+	<div>{% raw point %}</div>{% end %}
 {% else %}
 	{{ tree }}
 {% end %}

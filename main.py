@@ -10,6 +10,7 @@ import tornado.web
 
 from controllers import OrgHandler
 from controllers import OrgListHandler
+from controllers import OrgPointHandler
 from lisp_parser import parse as lisp_parser
 from settings import STYLE_PATH
 
@@ -25,6 +26,7 @@ def make_app() -> tornado.web.Application:
             url(r"/style.css()", tornado.web.StaticFileHandler,
                 {"path": STYLE_PATH}),
             url(r"/entries/", handler=OrgListHandler, name="entry-list"),
+            #url(r"/entries/(?P<entry>.+)/point/(?P<point>\d+)", handler=OrgPointHandler, name="entry-point"),
             url(r"/entries/(?P<entry>.+)", handler=OrgHandler, name="entry-show"),
         ],
         template_path="templates",

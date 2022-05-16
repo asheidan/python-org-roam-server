@@ -54,9 +54,6 @@ class Backlink:
 
             node[levels[-1]].append(link.point)
 
-        from pprint import pprint
-        pprint(tree)
-
         return tree
 #}}}
 

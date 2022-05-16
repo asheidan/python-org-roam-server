@@ -1,0 +1,20 @@
+{% extends "base-template.html" %}
+
+{% block page_title %}Second Brain - {% block document_title %}{{ title }}{% end %}{% end %}
+
+{% block body %}
+
+	{% raw body %}
+
+	{% if backlink_tree %}
+		<hr class="endmatter" />
+		<div class="endmatter">
+			<h2>{{ backlink_count }} Backlinks</h2>
+			<ul>{% for link_title, (source, subtree) in sorted(backlink_tree.items()) %}
+				<li><a href="{{ source }}">{{ link_title }}</a>
+				{% module Template('org-backlink-tree.html', tree=subtree) %}
+				</li>{% end %}
+			</ul>
+		</div>
+	{% end %}
+{% end %}
