@@ -1,0 +1,48 @@
+{% extends "base-template.html" %}
+
+{% block header_extras %}
+{% for d3_lib in ['d3@7', 'd3-color@3', 'd3-dispatch@3', 'd3-ease@3', 'd3-interpolate@3', 'd3-selection@3', 'd3-timer@3', 'd3-transition@3', 'd3-drag@3', 'd3-zoom@3' ] %}
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/{{ d3_lib }}"></script>
+{% end %}
+<script type="text/javascript" src="/static/d3-forcegraph.js"></script>
+{% end %}
+
+{% block page_title %}Second Brain - {% block document_title %}Graph{% end %}{% end %}
+
+{% block body %}
+<div id="graph"></div>
+<script type="text/javascript">
+	let data = {
+		"nodes": {% raw json_encode(entries) %},
+		"links": {% raw json_encode(links) %},
+	};
+	let svg = ForceGraph(data, {
+		nodeId: d => d.file,
+		nodeTitle: d => d.title,
+		nodeGroup: d => 1,
+		//nodeStrength: -0.75,
+		linkSource: d => d.source,
+		linkTarget: d => d.dest,
+		//linkStrength: 0.5,
+		width: 1024,
+		height: 768,
+	});
+
+	let target = document.getElementById("graph");
+	target.appendChild(svg);
+
+	// Zoom and Pan
+	// https://www.d3indepth.com/zoom-and-pan/
+
+	function handleZoom(event) {
+		const {transform} = event;
+		d3.selectAll('svg g')
+			.attr('transform', transform);
+			//.style('transform', 'translate(' + event.translate + ')' + ' scale(' + transform.k + ')');
+	}
+
+	let zoom = d3.zoom().on('zoom', handleZoom);
+
+	d3.select('svg').call(zoom);
+</script>
+{% end %}

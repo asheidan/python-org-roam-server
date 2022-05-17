@@ -101,4 +101,27 @@ class Entry:
         return [cls(**entry) for entry in entries]
 #}}}
 
+# class Link {{{
+@dataclass
+class Link:
+    source: str
+    dest: str
 
+    @classmethod
+    async def list(cls):
+        db = await db_connection()
+        sql_string = """SELECT
+            REPLACE(TRIM(source, '"'),?,'') AS source,
+            REPLACE(TRIM(dest, '"'),?,'') AS dest
+        FROM links
+        WHERE
+            type = '"file"'
+            AND dest LIKE '%.org"'
+            AND NOT dest LIKE '"Daily/%';"""
+        query = db.execute(sql_string,
+                           (ENTRY_DIRECTORY, ENTRY_DIRECTORY))
+        async with query as cursor:
+            links = await cursor.fetchall()
+
+        return [cls(**link) for link in links]
+#}}}

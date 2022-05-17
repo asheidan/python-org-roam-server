@@ -9,10 +9,11 @@ import tornado.ioloop
 import tornado.web
 
 from controllers import OrgHandler
+from controllers import OrgGraphHandler
 from controllers import OrgListHandler
 from controllers import OrgPointHandler
 from lisp_parser import parse as lisp_parser
-from settings import STYLE_PATH
+from settings import STATIC_PATH
 
 
 # TODO: argparse
@@ -23,11 +24,12 @@ def make_app() -> tornado.web.Application:
 
     return tornado.web.Application(
         [
-            url(r"/style.css()", tornado.web.StaticFileHandler,
-                {"path": STYLE_PATH}),
+            url(r"/static/(.*)", tornado.web.StaticFileHandler,
+                {"path": STATIC_PATH}),
             url(r"/entries/", handler=OrgListHandler, name="entry-list"),
             #url(r"/entries/(?P<entry>.+)/point/(?P<point>\d+)", handler=OrgPointHandler, name="entry-point"),
             url(r"/entries/(?P<entry>.+)", handler=OrgHandler, name="entry-show"),
+            url(r"/graph/", handler=OrgGraphHandler, name="entry-graph"),
         ],
         template_path="templates",
     )
