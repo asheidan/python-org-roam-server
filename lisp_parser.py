@@ -27,7 +27,7 @@ def _parse_value(value: str) -> Any:
 
 
 def parse(input: str) -> Any:
-    result = re.match('^\(:outline (?P<outline>.*) :point (?P<point>nil|\d+)\)$', input)
+    result = re.match('^\(:outline (?P<outline>.+?)(?: :content (?P<content>.*))? :point (?P<point>nil|\d+)\)$', input)
     #print(result)
     if result:
         return {
@@ -84,6 +84,20 @@ class TestParse(unittest.TestCase):
         expected = {
             'outline': ["foo"],
             'point': None,
+        }
+        self.assertEqual(expected, result)
+
+    def test_given_content_should_return_list_and_number(self):
+        # Given
+        input: str = '(:outline ("foo" "bar" "plopp ploop") :content "apa bepa" :point 312)'
+
+        # When
+        result: Any = parse(input)
+
+        # Then
+        expected = {
+            'outline': ["foo", "bar", "plopp ploop"],
+            'point': 312,
         }
         self.assertEqual(expected, result)
 

@@ -11,11 +11,6 @@ import pandoc.types
 from settings import STYLE_PATH
 
 
-# TODO: brew link python@3.10
-# TODO: byt till 3.10
-# TODO: manuellt länka in python3.9 och kanske pip3.9
-
-
 async def convert_org_to_html_old(path: str, *, after_body: Optional[bytes] = None, standalone: bool = True):  # {{{
     """Async convert org to html and return string.
     
@@ -88,6 +83,7 @@ def convert_org_to_html(file=None, source=None,
             #print(metadata)
 
             return metadata, pandoc.write(document, format="html", options=options)
+
 
 def point_in_org(path: str, points: List[int]):  #{{{
 
